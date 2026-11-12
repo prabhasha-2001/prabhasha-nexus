@@ -1,0 +1,59 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-root-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-prabhasha_nexus}
+      MYSQL_USER: ${MYSQL_USER:-nexus}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change-nexus-password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      FLASK_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-nexus}:${MYSQL_PASSWORD:-change-nexus-password}@db:3306/${MYSQL_DATABASE:-prabhasha_nexus}?charset=utf8mb4
+      UPLOAD_DIR: /data/uploads
+      BACKUP_DIR: /data/backups
+      KNOWLEDGE_DIR: /data/knowledge
+      FAISS_INDEX_DIR: /data/index
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      SEED_ON_START: ${SEED_ON_START:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - nexus_data:/data
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+volumes:
+  mysql_data:
+  nexus_data:

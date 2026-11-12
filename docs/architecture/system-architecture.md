@@ -4,11 +4,11 @@
 
 Prabhasha Nexus is a modular monolith:
 
-- **Static frontend** (HTML/CSS/JS) served independently or via Nginx.
+- **Static frontend** (HTML/CSS/vanilla JavaScript) served independently or through Nginx.
 - **Flask REST API** (application factory + blueprints) exposing versioned `/api/v1/` endpoints.
 - **MySQL** relational database accessed only by the backend through SQLAlchemy.
-- **AI layer** (LangChain / LangGraph / FAISS) invoked by backend services with deterministic fallbacks.
-- **Automation layer** (n8n webhooks) invoked asynchronously (fire-and-forget with logging).
+- **AI layer** (hybrid lexical + optional dense retrieval, optional Groq/OpenRouter LLM) invoked by backend services with deterministic fallbacks.
+- **Automation layer** (n8n webhooks) invoked asynchronously with execution logging.
 
 The frontend never talks to the database, AI providers, GitHub, or n8n directly. All sensitive credentials live only in backend environment variables.
 
@@ -16,28 +16,26 @@ The frontend never talks to the database, AI providers, GitHub, or n8n directly.
 
 ```
 ┌──────────────────────────┐        HTTPS/JSON        ┌──────────────────────────┐
-│  Public Portfolio (SPA-  │ ───────────────────────▶ │  Flask REST API          │
-│  style static pages)     │                          │  /api/v1/*               │
-│  index.html + pages/*    │ ◀─────────────────────── │  JWT + Rate limiting     │
+│  Public Portfolio        │ ───────────────────────▶ │  Flask REST API          │
+│  index.html + pages      │                          │  /api/v1/*               │
+│  admin/index.html        │ ◀─────────────────────── │  JWT + Rate limiting     │
 └──────────────────────────┘                          └───────────┬──────────────┘
                                                                    │
-┌──────────────────────────┐                                       │ SQLAlchemy
-│  Admin Dashboard         │ ──────────────────────────────────────┤
-│  /admin (JWT protected)  │                                       │
-└──────────────────────────┘                                       ▼
-                                                       ┌──────────────────────────┐
-                                                       │  MySQL 8                 │
-                                                       │  normalized relational   │
-                                                       └──────────────────────────┘
+                                                                   │ SQLAlchemy
+                                                                   ▼
+                                                        ┌──────────────────────────┐
+                                                        │  MySQL 8                 │
+                                                        │  normalized relational   │
+                                                        └──────────────────────────┘
                                                                    │
-                         ┌─────────────────────────────────────────┼─────────────────────────┐
-                         ▼                                         ▼                         ▼
-              ┌────────────────────┐                   ┌────────────────────┐      ┌────────────────────┐
-              │ AI Services        │                   │ GitHub Service     │      │ n8n Webhooks       │
-              │ RAG / FAISS        │                   │ cached, rate-aware │      │ authenticated      │
-              │ LangGraph agents   │                   └────────────────────┘      └────────────────────┘
-              │ Groq / OpenRouter  │
-              └────────────────────┘
+                          ┌─────────────────────────────────────────┼─────────────────────────┐
+                          ▼                                         ▼                         ▼
+               ┌────────────────────┐                   ┌────────────────────┐      ┌────────────────────┐
+               │ AI Services        │                   │ GitHub Service     │      │ n8n Webhooks       │
+               │ lexical + dense    │                   │ cached, rate-aware │      │ authenticated      │
+               │ optional LLM       │                   └────────────────────┘      └────────────────────┘
+               │ Groq / OpenRouter  │
+               └────────────────────┘
 ```
 
 ## 3. Backend Layers
@@ -49,7 +47,7 @@ The frontend never talks to the database, AI providers, GitHub, or n8n directly.
 | `services/` | Business logic, transactions, orchestration |
 | `repositories/` | Reusable query/filter/pagination helpers |
 | `models/` | SQLAlchemy ORM entities and relationships |
-| `ai/` | Embeddings, vector store, RAG pipeline, LangGraph, LLM client |
+| `ai/` | Chunking, hybrid retrieval, optional embeddings, LLM client, chat, generation |
 | `automation/` | n8n webhook dispatch and logging |
 | `middleware/` | Authentication decorators, RBAC, audit, security headers |
 | `utils/` | Response envelope, errors, pagination, file validation |
@@ -75,33 +73,35 @@ All routes are registered under a single API blueprint tree in `app/routes/__ini
 
 ## 5. AI Architecture
 
-### 5.1 RAG pipeline
-1. Admin uploads PDF → stored under persistent upload path (configurable S3 adapter).
-2. Text extracted → cleaned → chunked (overlapping windows).
-3. Embeddings generated:
-   - `sentence-transformers` + FAISS when installed/available.
-   - Deterministic hashing embeddings + numpy cosine similarity fallback otherwise.
-4. Index persisted with document metadata.
-5. Query → embed → top-k retrieval → grounded prompt → LLM.
-6. If no LLM key: answer is composed from retrieved context with source citations (no fabrication).
+### 5.1 Retrieval pipeline
+1. Admin uploads a PDF/TXT/Markdown document; the file is stored locally under `KNOWLEDGE_DIR` with metadata in the database.
+2. Text is extracted (`pypdf` for PDFs), cleaned and chunked with overlap.
+3. Each chunk is stored in `knowledge_chunks`; embeddings are optional and stored alongside chunks when enabled.
+4. Retrieval combines:
+   - lexical scoring with token frequency, IDF and length normalisation
+   - cosine similarity over dense embeddings when `sentence-transformers` is installed
+   - weighted hybrid score (`0.55` lexical + `0.45` dense) when both are available
+5. Top-k chunks plus generated portfolio documents form the grounded context.
+6. If no LLM key is configured, a deterministic answer cites retrieved sources without fabricating claims.
 
-### 5.2 LangGraph multi-agent routing
-- Orchestrator classifies intent: `profile | projects | skills | career | research | certificates | contact | general`.
-- Node handlers retrieve domain-specific context from the database and knowledge base.
-- A verification node rejects unsupported claims and enforces "I don't have that information" behaviour.
-- Error/retry wrapper with bounded retries and structured logging.
-- When LangGraph is not installed, an equivalent deterministic router executes the same nodes.
+There is no external vector database or LangChain/LangGraph runtime; the index is relational and rebuildable with `flask knowledge rebuild`.
+
+### 5.2 Assistant routing
+- The assistant uses a single grounded prompt over the retrieved portfolio and knowledge context.
+- Domain coverage is achieved through retrieval over profile, projects, skills, research, education, certificates and approved documents.
+- Unsupported questions return an explicit "no verified information" response.
+- Conversation history is persisted per session with bounded context.
 
 ### 5.3 Content & resume assistants
 - Drafts are stored with `status=draft`; publishing requires explicit admin action.
-- Resume matching compares job description keywords against verified profile data only; it never invents experience.
+- Resume matching compares job-description keywords against verified profile data only; it never invents experience.
 
 ## 6. Analytics Architecture
 
 - Lightweight client event tracking (`POST /analytics/events`) with privacy salt hashing of visitor identifiers.
-- Server-side aggregation queries produce daily/monthly series, popular content, device categories, and traffic sources.
+- Server-side aggregation queries produce daily/monthly series, popular content, device categories and traffic sources.
 - Predictions (if enabled) are clearly labelled as `prediction` and kept separate from measured values.
-- CSV export generated server-side; PDF report uses a minimal built-in generator or printable view.
+- CSV export generated server-side; report payloads are API-driven.
 
 ## 7. Security Architecture
 
@@ -116,11 +116,11 @@ All routes are registered under a single API blueprint tree in `app/routes/__ini
 
 ## 8. Deployment Topology
 
-- Backend: Gunicorn behind Render/any container host.
-- Frontend: static host or Nginx container.
-- DB: managed MySQL (Render MySQL, PlanetScale, RDS).
-- Media: persistent disk or S3-compatible bucket (recommended).
-- Vector index: persistent disk or rebuildable from DB metadata + stored documents.
+- Backend: Gunicorn in Docker Compose or on Render/any container host.
+- Frontend: Nginx container or static host.
+- DB: MySQL 8 in Compose or managed MySQL.
+- Media/backups/index: named Docker volume or persistent disk.
+- S3-compatible storage: configuration is reserved for a future adapter; the current release uses local disk.
 
 ## 9. Design Principles
 

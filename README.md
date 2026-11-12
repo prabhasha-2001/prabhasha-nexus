@@ -2,45 +2,50 @@
 
 **AI-Powered Personal Portfolio & Intelligence Management Platform**
 
-Prabhasha Nexus is a full-stack, production-oriented portfolio platform for **Muwagamage Tharushi Prabhasha Dilshani** — AI/ML Engineer, Data Science Enthusiast, Python Developer, and Generative AI Developer.
+Prabhasha Nexus is a full-stack portfolio and content platform for **Muwagamage Tharushi Prabhasha Dilshani** — AI/ML Engineer, Data Science Enthusiast, Python Developer and Generative AI Developer.
 
-It combines a premium public portfolio, a complete admin dashboard, a versioned Flask REST API, a MySQL relational database, an AI portfolio assistant (RAG + LangGraph multi-agent routing), portfolio analytics, GitHub integration, and n8n workflow automation.
+It combines a public portfolio, a role-based admin dashboard, a versioned Flask REST API, a MySQL/SQLite database, a grounded AI assistant, privacy-conscious analytics, GitHub integration and n8n workflow automation. Portfolio facts are seeded only from verified owner data; unverified features degrade gracefully instead of inventing content.
 
 ---
 
-## Key Features
+## Highlights
 
-### Public Portfolio
-- Dark/light glassmorphism design with persisted theme
-- Home, About, Skills, Projects, Certificates, Education/Experience, Research, Blog, Contact
-- Dynamic content loaded exclusively from `/api/v1/` REST endpoints
-- Project detail pages with architecture, metrics, challenges, and future work
-- Certificate gallery with PDF/image previews and verification links
-- Blog with categories, tags, reading time, related posts
-- Contact form with validation, spam protection, and database persistence
-- Resume/CV download tracking
-- AI portfolio chatbot with source-aware answers
-- Privacy-conscious analytics event tracking
-- Responsive, accessible, SEO-aware markup
+### Public portfolio
+- Dark/light design system with persisted theme, responsive navigation and accessible markup
+- Home, About, Projects (+ detail), Research, Certificates, Blog, Contact
+- Content loaded from `/api/v1/` REST endpoints with loading, empty and error states
+- Project case studies with architecture, metrics, challenges and future work
+- Certificate gallery with verification links
+- Contact form and newsletter signup with validation, rate limiting and persistence
+- CV download with tracked events
+- Grounded AI portfolio assistant with source labels
+- First-party analytics events and GitHub activity panel
 
-### Admin Dashboard
-- JWT authentication with role-based access control (admin/editor/viewer)
-- Dashboard overview driven by real database statistics
-- 24 management modules: profile, projects, skills, certificates, education, experience, achievements, research, blog, media, messages, testimonials, newsletter, resumes, analytics, GitHub, AI center, knowledge base, automation, notifications, users, activity logs, settings, backups
-- Full CRUD with search, filtering, sorting, pagination, publish/archive/featured states
-- Confirmation dialogs, toast notifications, form validation, empty/loading/error states
+### Admin dashboard
+- JWT authentication with refresh tokens and admin/editor/viewer role enforcement
+- Dashboard KPIs, traffic chart, popular content and recent activity from real data
+- CRUD modules for profile, projects, research, blog, education, experience, skills, skill groups, certificates, testimonials, achievements, categories and tags
+- Inbox for contact messages and newsletter subscribers
+- Media library and CV/resume version management
+- Analytics overview with CSV export
+- GitHub profile/repository cache viewer and refresh
+- AI studio, knowledge base, conversations and generation review
+- Automation workflows and execution logs
+- Users, activity audit trail, system settings and backups
 
-### AI Intelligence Center
-- Retrieval-Augmented Generation over approved knowledge documents
-- PDF upload, text extraction, chunking, embeddings, FAISS index (with graceful numpy fallback)
-- LangGraph multi-agent routing with deterministic fallback when no LLM key is present
-- AI content drafting (remains draft until approved)
-- AI resume/job-description matching — never fabricates experience
+### AI intelligence
+- Retrieval grounding over approved portfolio data and uploaded knowledge documents
+- Lexical retrieval and deterministic answer fallback when no embedding/LLM provider is configured
+- Optional Groq/OpenRouter generation through `requests`
+- Knowledge upload (PDF/TXT/Markdown), approval workflow and index rebuild
+- Content drafting that stays in draft until a human approves it
+- Resume/job-description keyword analysis without fabricating experience
 
-### Integrations
-- Official GitHub API with server-side caching and rate-limit handling
-- n8n authenticated webhooks with execution logging
-- Swagger/OpenAPI documentation
+### Operations
+- Alembic migrations, idempotent seed command and health endpoint
+- Central error envelope, rate limiting, audit logging and security headers
+- Docker Compose stack with MySQL, Gunicorn and Nginx
+- GitHub Actions CI for tests, JavaScript syntax and Docker builds
 
 ---
 
@@ -48,78 +53,73 @@ It combines a premium public portfolio, a complete admin dashboard, a versioned 
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | HTML5, CSS3, JavaScript ES6+, Bootstrap 5, Fetch API, Chart.js, AOS, Font Awesome |
-| Backend | Python 3, Flask, Blueprints, SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-CORS, Flask-Limiter, Marshmallow, Gunicorn |
-| Database | MySQL 8 (SQLite for local dev/tests), Alembic migrations |
-| AI | LangChain, LangGraph, FAISS, HuggingFace embeddings, Groq, OpenRouter (all optional with fallbacks) |
+| Frontend | HTML5, CSS3 custom design system, vanilla JavaScript ES6+, Fetch API |
+| Backend | Python 3.11+, Flask, Blueprints, SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-CORS, Flask-Limiter, Marshmallow, Gunicorn |
+| Database | MySQL 8 in production, SQLite for local development and tests, Alembic migrations |
+| AI | Optional Groq/OpenRouter LLMs, optional sentence-transformers embeddings, lexical BM25-style fallback |
 | Automation | n8n webhooks, SMTP email |
-| DevOps | Git, GitHub Actions, Docker, Docker Compose, Render, Pytest |
+| DevOps | Docker, Docker Compose, Nginx, GitHub Actions, Pytest |
+
+No frontend build step or npm dependency is required.
 
 ---
 
-## Folder Structure
+## Project Structure
 
 ```
 prabhasha-nexus/
 ├── frontend/
-│   ├── index.html              # Home / About / Skills / Highlights
-│   ├── pages/                  # projects, certificates, education, research, blog, contact...
-│   ├── admin/                  # login.html + index.html (admin SPA)
-│   └── assets/                 # css, js, images, fonts
+│   ├── index.html, about.html, projects.html, project.html
+│   ├── research.html, certificates.html, blog.html, contact.html
+│   ├── admin/index.html              # admin SPA (hash routing)
+│   └── assets/
+│       ├── css/styles.css            # public design system
+│       ├── css/admin.css             # admin shell
+│       └── js/{config,api,ui,pages,admin}.js
 ├── backend/
 │   ├── app/
-│   │   ├── __init__.py         # application factory
-│   │   ├── config.py
+│   │   ├── __init__.py               # application factory
+│   │   ├── config.py                 # environment profiles
 │   │   ├── extensions.py
-│   │   ├── models/             # SQLAlchemy models
-│   │   ├── schemas/            # Marshmallow validation
-│   │   ├── routes/             # versioned API blueprints
-│   │   ├── services/           # business logic
-│   │   ├── repositories/       # query helpers
-│   │   ├── ai/                 # RAG, embeddings, LangGraph agents
-│   │   ├── automation/         # n8n webhook client
-│   │   ├── middleware/         # auth, audit, security headers
-│   │   └── utils/              # responses, errors, pagination, files
-│   ├── migrations/             # Alembic
-│   ├── tests/                  # Pytest suite
-│   ├── uploads/                # local media (gitignored)
+│   │   ├── models/                   # SQLAlchemy models
+│   │   ├── schemas/                  # Marshmallow validation
+│   │   ├── routes/                   # public, auth, admin, AI, integrations
+│   │   ├── services/                 # CRUD, auth, seed, analytics, backups
+│   │   ├── ai/                       # embeddings, LLM, RAG, chat, generation
+│   │   ├── automation/               # n8n client
+│   │   └── utils/                    # responses, errors, pagination, security
+│   ├── migrations/                   # Alembic
+│   ├── tests/                        # 51 pytest tests
 │   ├── requirements.txt
-│   ├── run.py
-│   └── wsgi.py
-├── database/
-│   ├── schema/                 # reference SQL schema
-│   └── seeds/                  # seed data notes
-├── docs/
-│   ├── architecture/
-│   ├── api/
-│   ├── database/
-│   ├── deployment/
-│   └── development/
-├── docker/
-├── scripts/
-├── .env.example
-├── .github/workflows/ci.yml
+│   ├── wsgi.py
+│   └── run.py
+├── docker/                           # backend/frontend Dockerfiles + nginx/entrypoint
 ├── docker-compose.yml
-├── Dockerfile
-└── README.md
+├── docs/
+├── .github/workflows/ci.yml
+└── .env.example
 ```
 
 ---
 
-## Installation
+## Quick Start
 
 ### Prerequisites
 - Python 3.11+ (tested on 3.13)
-- MySQL 8 (optional for local; SQLite is the default)
-- Docker + Docker Compose (optional)
+- Optional: MySQL 8, Docker and Docker Compose
 
-### 1. Clone
+### 1. Clone and configure
+
 ```bash
 git clone https://github.com/prabhasha-2001/prabhasha-nexus.git
 cd prabhasha-nexus
+cp .env.example .env
 ```
 
-### 2. Backend setup
+Edit `.env` and set at least strong `SECRET_KEY`, `JWT_SECRET_KEY`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`. SQLite is used locally when `DATABASE_URL` is empty.
+
+### 2. Backend
+
 ```bash
 cd backend
 python -m venv .venv
@@ -129,73 +129,51 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-copy ..\.env.example .env      # Windows
-# cp ../.env.example .env      # Linux/macOS
-```
-
-Edit `.env` (at repository root or `backend/.env`) with real values.
-
-### 3. Database setup
-```bash
-# Initialize migrations (first time only, already committed in repo)
 flask --app wsgi.py db upgrade
-
-# Create the initial administrator + verified portfolio seed data
 flask --app wsgi.py seed
-```
-
-For MySQL, set `DATABASE_URL`:
-```
-mysql+pymysql://user:password@127.0.0.1:3306/prabhasha_nexus?charset=utf8mb4
-```
-
-### 4. Run backend
-```bash
 python run.py
-# API: http://localhost:5000/api/v1
-# Swagger UI: http://localhost:5000/api/docs
 ```
 
-### 5. Run frontend
+- API: `http://localhost:5000/api/v1`
+- Swagger UI: `http://localhost:5000/api/docs`
+- OpenAPI JSON: `http://localhost:5000/api/openapi.json`
+- Health: `http://localhost:5000/api/v1/health`
+
+### 3. Frontend
+
 Serve the `frontend/` directory with any static server:
+
 ```bash
 cd frontend
-python -m http.server 5500
-# http://localhost:5500
+python -m http.server 8000
 ```
-The frontend reads the API base URL from `window.PRABHASHA_API_BASE` (default `http://localhost:5000/api/v1`).
 
-Default seed administrator credentials come from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`. Change the password immediately after first login.
+Open `http://localhost:8000` for the public site and `http://localhost:8000/admin/index.html` for the dashboard.
+
+On ports `8000`, `5500`, `3000` or `5173` the frontend calls `http://localhost:5000/api/v1`. Set `window.PRABHASHA_API_BASE` before loading `config.js` to override this. On other origins (including the Docker frontend) it uses same-origin `/api/v1`, which Nginx proxies to the backend.
+
+### 4. Sign in
+
+Use the initial admin credentials from `.env` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`), then change the password immediately. Seed data is idempotent and contains only verified profile, education, skills, projects, research and workflow records.
 
 ---
 
 ## Docker
 
 ```bash
-copy .env.example .env
-docker compose up --build
-# Frontend: http://localhost:8080
-# Backend:  http://localhost:5000
-# MySQL:    localhost:3306
+cp .env.example .env
+# edit secrets and MySQL passwords in .env
+docker compose up --build -d
 ```
 
-Then seed once:
-```bash
-docker compose exec backend flask --app wsgi.py seed
-```
+Services:
+- `db` — MySQL 8 with the `mysql_data` volume
+- `backend` — Gunicorn on port 5000, data volume `nexus_data`
+- `frontend` — Nginx on port 8080, proxying `/api/` and `/uploads/` to the backend
 
-See `docs/deployment/deployment-guide.md` for production guidance.
+The backend entrypoint applies migrations on start. `SEED_ON_START=true` seeds once; set it to `false` after the first successful deployment.
 
----
-
-## API
-
-- Base path: `/api/v1/`
-- Interactive docs: `/api/docs`
-- OpenAPI JSON: `/api/openapi.json`
-- Documentation: `docs/api/api-documentation.md`
-
-Authentication uses JWT bearer tokens. Public read endpoints are unauthenticated and rate-limited; all admin endpoints require a valid token and appropriate role.
+URLs: public site `http://localhost:8080`, backend `http://localhost:5000`.
 
 ---
 
@@ -203,49 +181,101 @@ Authentication uses JWT bearer tokens. Public read endpoints are unauthenticated
 
 ```bash
 cd backend
-pytest -q
+python -m pytest -q
 ```
 
-Tests use an isolated SQLite database and mock external AI/GitHub/n8n calls. No real credentials are required.
+The suite currently has **51 passing tests** covering public APIs, auth/JWT rotation, RBAC, admin CRUD, uploads, analytics, integrations and AI fallbacks. Tests use an isolated SQLite database and never require real AI, GitHub, SMTP or n8n credentials.
 
 ---
 
-## Environment Configuration
+## Configuration
 
-All configuration is environment-driven. See `.env.example` for the complete list. Secrets are never committed and never exposed to the frontend.
+All configuration is environment-driven; see `.env.example`. Key groups:
 
-AI, GitHub, SMTP, and n8n integrations degrade gracefully:
-- No LLM key → deterministic retrieval-grounded assistant
-- No GitHub token → unauthenticated cached API calls (rate-limited)
-- No n8n URL → automations recorded as `not_configured`
-- No SMTP → emails recorded as skipped
+| Group | Variables |
+|-------|-----------|
+| Flask/JWT | `SECRET_KEY`, `JWT_SECRET_KEY`, token lifetimes |
+| Database | `DATABASE_URL`, `MYSQL_*` for Compose |
+| CORS | `CORS_ORIGINS`, `FRONTEND_URL` |
+| Admin seed | `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` |
+| Limits | `RATE_LIMIT_*`, `MAX_CONTENT_LENGTH_MB` |
+| AI | `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `EMBEDDINGS_ENABLED`, `AI_TOP_K` |
+| Integrations | `GITHUB_TOKEN`, `N8N_*`, `SMTP_*` |
+| Storage | `UPLOAD_DIR`, `BACKUP_DIR`, `S3_*` |
+
+### Graceful degradation
+
+| Missing configuration | Behaviour |
+|-----------------------|-----------|
+| No LLM key | Deterministic, retrieval-grounded assistant and template drafts |
+| No embedding model | Lexical retrieval fallback |
+| No GitHub token | Unauthenticated cached GitHub API calls with rate-limit handling |
+| No n8n URL | Workflow runs recorded as `not_configured` |
+| No SMTP | Email delivery recorded as skipped |
+
+AI, GitHub, SMTP and n8n failures never break core portfolio or admin functionality.
+
+---
+
+## API
+
+- Base path: `/api/v1/`
+- Envelope: `{ "success": true, "data": ..., "meta": ... }`
+- Pagination meta: `{ page, per_page, total, pages, has_next, has_prev }`
+- Auth: `Authorization: Bearer <access_token>`
+- Public endpoints are unauthenticated and rate-limited; admin endpoints require a valid token and role.
+
+Documentation:
+- Swagger UI: `/api/docs`
+- OpenAPI JSON: `/api/openapi.json`
+- Reference: `docs/api/api-documentation.md`
 
 ---
 
 ## Security
 
-- Password hashing (Werkzeug PBKDF2)
-- JWT access/refresh tokens with revocation checks
-- Role-based access control
-- Login and endpoint rate limiting
+- Werkzeug PBKDF2 password hashing
+- Short-lived access tokens and revocable refresh tokens
+- Role-based access control (admin/editor/viewer)
+- Login, AI, contact and default rate limits
 - CORS allowlist
-- Security headers (CSP, X-Frame-Options, nosniff, referrer policy)
-- Upload validation by magic bytes, size limits, sanitized filenames
-- SQL injection protection via ORM parameterisation
-- Audit logging of administrative actions
-- Environment-based secrets
+- Security headers (CSP, `X-Frame-Options`, `nosniff`, referrer policy)
+- Upload extension, size and magic-byte validation with sanitized filenames
+- ORM parameterisation and audit logging
+- Environment-only secrets; `.env` is gitignored
+
+Never commit `.env` or real credentials. Rotate the seeded administrator password and any integration tokens before going live.
 
 ---
 
-## Screenshots
+## Deployment
 
-Screenshots will be added under `docs/screenshots/` after UI completion:
-- Home (dark / light)
-- Projects gallery & detail
-- Certificates gallery
-- Admin dashboard
-- AI chatbot
-- Analytics charts
+See `docs/deployment/deployment-guide.md` for Docker, Render and MySQL guidance, persistent storage notes, migrations, backups, rollback and troubleshooting.
+
+Production checklist:
+- [ ] HTTPS enforced
+- [ ] Strong `SECRET_KEY` / `JWT_SECRET_KEY`
+- [ ] Seed admin password changed
+- [ ] `CORS_ORIGINS` restricted to real domains
+- [ ] `DEBUG=false`
+- [ ] Persistent media/backup storage configured
+- [ ] Database backups scheduled and tested
+- [ ] Logs and rate limits monitored
+
+---
+
+## Roadmap
+
+- [x] Phase 1 — Foundation, docs and tooling
+- [x] Phase 2 — Database and backend foundation
+- [x] Phase 3 — Core REST APIs, auth and validation
+- [x] Phase 4 — Public frontend
+- [x] Phase 5 — Admin dashboard
+- [x] Phase 6 — AI intelligence center
+- [x] Phase 7 — Analytics, GitHub and n8n integrations
+- [x] Phase 8 — Testing, security, Docker, CI and deployment docs
+
+Post-launch backlog: two-factor authentication, S3/R2 media adapter, GitHub contribution heatmap, Sinhala/English switching, predictive analytics and scheduled database backups.
 
 ---
 
@@ -253,38 +283,20 @@ Screenshots will be added under `docs/screenshots/` after UI completion:
 
 | Document | Path |
 |----------|------|
-| System Architecture | `docs/architecture/system-architecture.md` |
-| Database Design | `docs/database/database-design.md` |
-| API Documentation | `docs/api/api-documentation.md` |
-| Deployment Guide | `docs/deployment/deployment-guide.md` |
-| Development Roadmap | `docs/development/development-roadmap.md` |
-
----
-
-## Roadmap
-
-- [x] Phase 1 — Foundation, docs, tooling
-- [x] Phase 2 — Database & backend foundation
-- [x] Phase 3 — Core REST APIs, auth, validation
-- [x] Phase 4 — Public frontend
-- [x] Phase 5 — Admin dashboard
-- [x] Phase 6 — AI Intelligence Center (RAG, LangGraph)
-- [x] Phase 7 — Analytics, GitHub, n8n
-- [x] Phase 8 — Testing, security, Docker, deployment
-
-Future improvements:
-- Two-factor authentication
-- Object storage adapter (S3/R2) for media
-- Contribution heatmap from GitHub GraphQL
-- Multi-language portfolio (Sinhala/English)
-- Predictive engagement analytics
+| System architecture | `docs/architecture/system-architecture.md` |
+| Database design | `docs/database/database-design.md` |
+| API reference | `docs/api/api-documentation.md` |
+| Deployment guide | `docs/deployment/deployment-guide.md` |
+| Development roadmap | `docs/development/development-roadmap.md` |
 
 ---
 
 ## Owner
 
 **Muwagamage Tharushi Prabhasha Dilshani**
+
 AI/ML Engineer · Data Science Enthusiast · Python Developer · Generative AI Developer
+
 Kaduwela, Sri Lanka
 [GitHub](https://github.com/prabhasha-2001) · [LinkedIn](https://linkedin.com/in/prabhasha-dilshani-7258593a6)
 
@@ -292,4 +304,4 @@ Kaduwela, Sri Lanka
 
 ## License
 
-Personal project. All portfolio content belongs to the owner. Code provided for the owner's use.
+Personal project. All portfolio content belongs to the owner. Code is provided for the owner's use.
