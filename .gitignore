@@ -1,0 +1,78 @@
+# ---- Environment & secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+.hypothesis/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Flask / app runtime ----
+instance/
+backend/instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# ---- Uploads & generated media (private) ----
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/app/ai/index/*
+!backend/app/ai/index/.gitkeep
+backend/app/ai/documents/*
+!backend/app/ai/documents/.gitkeep
+backend/backups/
+*.dump
+*.sql.gz
+
+# ---- Logs & temp ----
+*.log
+logs/
+*.tmp
+*.temp
+tmp/
+.cache/
+
+# ---- IDE / OS ----
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Node (tooling only) ----
+node_modules/
+npm-debug.log*
+
+# ---- Docker ----
+docker-compose.override.yml
+
+# ---- Test/coverage artifacts ----
+backend/.pytest_cache/
+backend/htmlcov/
