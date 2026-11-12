@@ -56,7 +56,7 @@ def _default_database_uri() -> str:
 
 class Config:
     # ---- Core ----
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me-use-a-32-byte-env-value")
     JSON_SORT_KEYS = False
     PROPAGATE_EXCEPTIONS = None
 
@@ -79,9 +79,13 @@ class Config:
     # ---- CORS / URLs ----
     CORS_ORIGINS = env_list(
         "CORS_ORIGINS",
-        "http://localhost:5500,http://127.0.0.1:5500,http://localhost:8080",
+        "http://localhost:5500,http://127.0.0.1:5500,"
+        "http://localhost:8080,http://127.0.0.1:8080,"
+        "http://localhost:8000,http://127.0.0.1:8000,"
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://localhost:5173,http://127.0.0.1:5173,null",
     )
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5500")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8000")
 
     # ---- Rate limiting ----
     RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
@@ -119,6 +123,9 @@ class Config:
     EMBEDDING_DIMENSION = env_int("EMBEDDING_DIMENSION", 384)
     AI_TOP_K = env_int("AI_TOP_K", 5)
     AI_MAX_CONTEXT_CHARS = env_int("AI_MAX_CONTEXT_CHARS", 6000)
+    AI_MAX_TOKENS = env_int("AI_MAX_TOKENS", 700)
+    AI_TIMEOUT_SECONDS = env_int("AI_TIMEOUT_SECONDS", 30)
+    EMBEDDINGS_ENABLED = env_bool("EMBEDDINGS_ENABLED", True)
     KNOWLEDGE_DIR = env_path("KNOWLEDGE_DIR", BASE_DIR / "app" / "ai" / "documents")
     FAISS_INDEX_DIR = env_path("FAISS_INDEX_DIR", BASE_DIR / "app" / "ai" / "index")
 

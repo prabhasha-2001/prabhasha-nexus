@@ -55,7 +55,7 @@ def register_cli(app: Flask) -> None:
         """Knowledge base operations. Usage: flask knowledge rebuild"""
         if action != "rebuild":
             raise click.ClickException("Supported action: rebuild")
-        from app.services.rag_service import rebuild_index
+        from app.ai.rag_service import rebuild_index
 
         result = rebuild_index()
         click.echo(

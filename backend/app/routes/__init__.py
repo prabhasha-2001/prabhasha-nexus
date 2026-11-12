@@ -11,8 +11,7 @@ def register_blueprints(app: Flask) -> None:
     from app.routes.public import bp as public_bp
     from app.routes.system import bp as system_bp
 
-    api = Blueprint("api_v1", __name__, url_prefix="/api/v1")
-    for blueprint in (
+    blueprints = [
         auth_bp,
         public_bp,
         analytics_bp,
@@ -20,17 +19,20 @@ def register_blueprints(app: Flask) -> None:
         media_bp,
         integrations_bp,
         system_bp,
-    ):
-        api.register_blueprint(blueprint)
-    app.register_blueprint(api)
+    ]
 
     # AI blueprint is optional during early boot; registered when available.
     try:
         from app.routes.ai import bp as ai_bp
 
-        api.register_blueprint(ai_bp)
+        blueprints.append(ai_bp)
     except ImportError:
         pass
+
+    api = Blueprint("api_v1", __name__, url_prefix="/api/v1")
+    for blueprint in blueprints:
+        api.register_blueprint(blueprint)
+    app.register_blueprint(api)
 
     from app.routes.docs import bp as docs_bp
 
