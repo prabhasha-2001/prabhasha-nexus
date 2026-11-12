@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin · Prabhasha Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body class="admin-body">
+  <section class="login-view" id="login-view" hidden>
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="brand-mark">PN</span>
+        <div class="brand-text"><strong>Prabhasha Nexus</strong><small>Control room</small></div>
+      </div>
+      <h1>Sign in</h1>
+      <p class="muted">Manage portfolio content, AI knowledge and platform settings.</p>
+      <form class="form" id="login-form" novalidate>
+        <label>Email
+          <input type="email" name="email" autocomplete="username" placeholder="admin@prabhashanexus.local" required />
+        </label>
+        <label>Password
+          <input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+        <p class="form-note error" id="login-error" hidden></p>
+        <button class="btn btn-primary btn-block" type="submit" id="login-submit">Sign in</button>
+      </form>
+      <p class="login-note">Protected area. All actions are audit-logged.</p>
+      <div class="login-hint">First run? Use the admin credentials from your <span class="mono">backend/.env</span> file, then change the password immediately.</div>
+    </div>
+  </section>
+
+  <div class="admin-shell" id="app-view" hidden>
+    <div class="sidebar-scrim" id="sidebar-scrim"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">PN</span>
+        <div><strong>Prabhasha Nexus</strong><small>Admin</small></div>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Admin navigation"></nav>
+      <div class="sidebar-foot">
+        <div class="sidebar-user">
+          <span class="avatar-sm text-avatar" id="user-initials">PN</span>
+          <div><strong id="user-name">Admin</strong><span id="user-role">admin</span></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" id="sign-out">Sign out</button>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" type="button" id="mobile-menu" aria-label="Open menu">☰</button>
+        <div class="topbar-title"><strong id="page-title">Dashboard</strong><span id="page-subtitle">Overview</span></div>
+        <div class="topbar-actions">
+          <a class="icon-btn" href="../index.html" target="_blank" rel="noopener" title="View public site" aria-label="View public site">↗</a>
+          <button class="icon-btn" type="button" id="refresh-view" title="Refresh" aria-label="Refresh view">⟳</button>
+          <button class="icon-btn" type="button" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">◐</button>
+        </div>
+      </header>
+      <main class="view" id="view" aria-live="polite"></main>
+    </div>
+  </div>
+
+  <div class="modal-root" id="modal-root"></div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/admin.js"></script>
+</body>
+</html>

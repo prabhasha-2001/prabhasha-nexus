@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Case studies across AI/ML, data science, generative AI, backend systems and automation." />
+  <title>Projects · Prabhasha Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="assets/js/config.js" defer></script>
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/ui.js" defer></script>
+  <script src="assets/js/pages.js" defer></script>
+</head>
+<body data-page="projects">
+  <div id="scroll-progress" class="scroll-progress"></div>
+  <main>
+    <section class="page-head">
+      <div class="orb orb-b"></div>
+      <div class="container">
+        <span class="eyebrow">Case studies</span>
+        <h1>Systems built, decisions explained.</h1>
+        <p class="lead">Explore projects across AI/ML, data science, generative AI, backend engineering and workflow automation.</p>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="container">
+        <div class="toolbar">
+          <label class="search-field">
+            <span aria-hidden="true">⌕</span>
+            <input id="project-search" type="search" placeholder="Search projects, technologies…" aria-label="Search projects" />
+          </label>
+          <select id="project-filter" class="select" aria-label="Filter by category"></select>
+          <span class="result-count" id="projects-count"></span>
+        </div>
+        <div class="grid grid-3" id="projects-grid"></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Contact Prabhasha Dilshani for AI/ML, data science and software collaborations." />
+  <title>Contact · Prabhasha Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="assets/js/config.js" defer></script>
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/ui.js" defer></script>
+  <script src="assets/js/pages.js" defer></script>
+</head>
+<body data-page="contact">
+  <div id="scroll-progress" class="scroll-progress"></div>
+  <main>
+    <section class="page-head">
+      <div class="orb orb-b"></div>
+      <div class="container">
+        <span class="eyebrow">Contact</span>
+        <h1>Let's talk about the problem, not the buzzwords.</h1>
+        <p class="lead">Share what you're building, the data you have, and what success looks like. I'll reply with an honest assessment.</p>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="container contact-grid">
+        <div class="card contact-form-card">
+          <h2>Send a message</h2>
+          <p class="muted small">Messages are stored securely and never published. Required fields are marked *.</p>
+          <form id="contact-form" class="form" novalidate>
+            <div class="form-row">
+              <label>Name *<input name="name" required minlength="2" maxlength="150" autocomplete="name" /></label>
+              <label>Email *<input name="email" type="email" required autocomplete="email" /></label>
+            </div>
+            <div class="form-row">
+              <label>Phone<input name="phone" maxlength="50" autocomplete="tel" /></label>
+              <label>Subject *<input name="subject" required minlength="2" maxlength="255" /></label>
+            </div>
+            <label>Message *<textarea name="message" rows="6" required minlength="10" maxlength="5000" placeholder="What are you building? What kind of help do you need?"></textarea></label>
+            <label class="honeypot" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off" /></label>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Send message →</button>
+              <span class="form-note" id="contact-status" role="status"></span>
+            </div>
+          </form>
+        </div>
+
+        <aside class="contact-side">
+          <div class="card compact">
+            <span class="eyebrow">Direct</span>
+            <h3>Contact details</h3>
+            <ul class="detail-list">
+              <li><span>Email</span><a id="contact-email" href="#">—</a></li>
+              <li><span>Phone</span><span id="contact-phone">—</span></li>
+              <li><span>Location</span><span id="contact-location">—</span></li>
+              <li><span>LinkedIn</span><a id="contact-linkedin" href="#" target="_blank" rel="noopener">Profile ↗</a></li>
+              <li><span>GitHub</span><a id="contact-github" href="#" target="_blank" rel="noopener">Repositories ↗</a></li>
+            </ul>
+          </div>
+          <div class="card compact">
+            <span class="eyebrow">Newsletter</span>
+            <h3>Occasional notes</h3>
+            <p class="muted small">Project write-ups and research updates. Consent-based, no spam.</p>
+            <form id="newsletter-form" class="form tight-form">
+              <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+              <label class="checkbox"><input name="consent" type="checkbox" required /> <span>I agree to receive occasional updates.</span></label>
+              <button class="btn btn-ghost btn-block" type="submit">Subscribe</button>
+              <span class="form-note" id="newsletter-status" role="status"></span>
+            </form>
+          </div>
+          <div class="card compact">
+            <span class="eyebrow">Response</span>
+            <p class="muted small">Best suited for AI/ML, data science, analytics and intelligent software conversations. I read every genuine message.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

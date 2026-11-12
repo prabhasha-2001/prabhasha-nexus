@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="About Prabhasha Dilshani — education, verified skills, research interests and GitHub activity." />
+  <title>About · Prabhasha Nexus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="assets/js/config.js" defer></script>
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/ui.js" defer></script>
+  <script src="assets/js/pages.js" defer></script>
+</head>
+<body data-page="about">
+  <div id="scroll-progress" class="scroll-progress"></div>
+  <main>
+    <section class="page-head">
+      <div class="orb orb-a"></div>
+      <div class="container">
+        <span class="eyebrow">Profile</span>
+        <h1>Curious about data, deliberate about impact.</h1>
+        <p class="lead">A final-year IT undergraduate building AI and analytics systems with clear evidence and honest scope.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container about-grid">
+        <aside class="profile-card card">
+          <div class="profile-avatar" id="about-avatar">PD</div>
+          <h2 id="about-name">Prabhasha Dilshani</h2>
+          <p class="muted" id="about-title"></p>
+          <p class="small muted" id="about-location"></p>
+          <div class="profile-links">
+            <a id="about-email" href="#">Email</a>
+            <a id="about-phone" href="#">Phone</a>
+            <a id="about-linkedin" href="#" target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a id="about-github" href="#" target="_blank" rel="noopener">GitHub ↗</a>
+          </div>
+          <div class="profile-block">
+            <span class="panel-label">Interests</span>
+            <div class="chip-row" id="about-interests"></div>
+          </div>
+          <div class="profile-block">
+            <span class="panel-label">Languages</span>
+            <div class="chip-row" id="about-languages"></div>
+          </div>
+          <button class="btn btn-primary btn-block" type="button" data-resume>Download CV</button>
+        </aside>
+        <div class="about-copy">
+          <section class="card prose">
+            <span class="eyebrow">Background</span>
+            <h2>About me</h2>
+            <p id="about-intro"></p>
+          </section>
+          <section class="card prose">
+            <span class="eyebrow">Direction</span>
+            <h2>Career focus</h2>
+            <p id="about-goals"></p>
+          </section>
+          <section class="card">
+            <span class="eyebrow">GitHub</span>
+            <h2>Building in public</h2>
+            <div id="github-panel"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container two-col">
+        <div>
+          <span class="eyebrow">Education</span>
+          <h2>Academic foundation</h2>
+          <div id="education-timeline"></div>
+        </div>
+        <div>
+          <span class="eyebrow">Experience</span>
+          <h2>Professional record</h2>
+          <div id="experience-list" class="stack"></div>
+          <span class="eyebrow spaced">Achievements</span>
+          <div id="achievements-list" class="stack"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Capabilities</span>
+            <h2>Skill map</h2>
+          </div>
+          <a class="text-link" href="projects.html">See them applied →</a>
+        </div>
+        <div id="about-skills"></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
