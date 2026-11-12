@@ -76,3 +76,7 @@ docker-compose.override.yml
 # ---- Test/coverage artifacts ----
 backend/.pytest_cache/
 backend/htmlcov/
+backend/tests/_uploads/
+backend/tests/_knowledge/
+backend/tests/_index/
+backend/tests/_backups/

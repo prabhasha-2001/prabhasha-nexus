@@ -1,0 +1,11 @@
+# Optional AI stack. Install with:
+#   pip install -r requirements-ai.txt
+# The application runs without these packages using deterministic fallbacks.
+langchain>=0.2,<0.4
+langchain-community>=0.2,<0.4
+langchain-core>=0.2,<0.4
+langgraph>=0.1,<0.4
+faiss-cpu>=1.8
+sentence-transformers>=3.0
+groq>=0.9
+openai>=1.40
