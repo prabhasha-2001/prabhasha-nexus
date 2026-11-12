@@ -27,7 +27,15 @@ services:
     environment:
       FLASK_ENV: production
       DEBUG: "false"
-      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-nexus}:${MYSQL_PASSWORD:-change-nexus-password}@db:3306/${MYSQL_DATABASE:-prabhasha_nexus}?charset=utf8mb4
+      # Build DB URL safely in app/config.py from components (handles special chars in passwords)
+      DB_DRIVER: mysql+pymysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${MYSQL_DATABASE:-prabhasha_nexus}
+      DB_USER: ${MYSQL_USER:-nexus}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-change-nexus-password}
+      DB_CHARSET: utf8mb4
+      DATABASE_URL: ""
       UPLOAD_DIR: /data/uploads
       BACKUP_DIR: /data/backups
       KNOWLEDGE_DIR: /data/knowledge

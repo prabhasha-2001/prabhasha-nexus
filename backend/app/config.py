@@ -45,10 +45,41 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-def _default_database_uri() -> str:
-    configured = os.getenv("DATABASE_URL")
+def _build_database_uri() -> str:
+    """Resolve SQLALCHEMY_DATABASE_URI.
+
+    Priority:
+      1. Explicit non-empty DATABASE_URL
+      2. Individual DB_* components (safe for passwords with special chars)
+      3. Local SQLite fallback
+    """
+    from sqlalchemy.engine import URL
+
+    configured = (os.getenv("DATABASE_URL") or "").strip()
     if configured:
         return configured
+
+    host = (os.getenv("DB_HOST") or "").strip()
+    name = (os.getenv("DB_NAME") or "").strip()
+    user = (os.getenv("DB_USER") or "").strip()
+    password = os.getenv("DB_PASSWORD")
+    if host and name:
+        driver = (os.getenv("DB_DRIVER") or "mysql+pymysql").strip()
+        port = env_int("DB_PORT", 3306)
+        query = {}
+        charset = (os.getenv("DB_CHARSET") or "utf8mb4").strip()
+        if charset:
+            query["charset"] = charset
+        return URL.create(
+            drivername=driver,
+            username=user or None,
+            password=password if password is not None else None,
+            host=host,
+            port=port,
+            database=name,
+            query=query,
+        ).render_as_string(hide_password=False)
+
     instance_dir = BASE_DIR / "instance"
     instance_dir.mkdir(parents=True, exist_ok=True)
     return f"sqlite:///{(instance_dir / 'nexus.sqlite').as_posix()}"
@@ -61,7 +92,7 @@ class Config:
     PROPAGATE_EXCEPTIONS = None
 
     # ---- Database ----
-    SQLALCHEMY_DATABASE_URI = _default_database_uri()
+    SQLALCHEMY_DATABASE_URI = _build_database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 

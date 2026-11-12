@@ -65,6 +65,7 @@ Status legend: DONE = implemented and verified; PLANNED = not yet implemented.
   integrations and AI fallbacks
 - Security hardening: headers, upload validation, rate limits and audit logs
 - Backend/frontend Dockerfiles, Compose stack, Nginx proxy and health checks
+- Docker MySQL config hardened: DB URL built from components via SQLAlchemy `URL.create()` (safe for special chars), backend DB-readiness wait and fail-fast migrations/seed
 - GitHub Actions CI for tests, JavaScript syntax and Docker builds
 - Final documentation and README
 - **Checkpoint 8**

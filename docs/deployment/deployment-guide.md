@@ -16,7 +16,13 @@ Copy `.env.example` and set at minimum:
 FLASK_ENV=production
 SECRET_KEY=<long random value>
 JWT_SECRET_KEY=<another long random value>
-DATABASE_URL=mysql+pymysql://user:pass@host:3306/db?charset=utf8mb4
+# Either a full URL (URL-encode special chars in password) or safe DB_* components:
+DB_DRIVER=mysql+pymysql
+DB_HOST=<host>
+DB_PORT=3306
+DB_NAME=<db>
+DB_USER=<user>
+DB_PASSWORD=<password>
 CORS_ORIGINS=https://your-frontend-domain
 FRONTEND_URL=https://your-frontend-domain
 ADMIN_EMAIL=<owner email>
@@ -24,25 +30,31 @@ ADMIN_PASSWORD=<strong initial password>
 ANALYTICS_SALT=<random value>
 ```
 
+If `DATABASE_URL` is set, it takes precedence; otherwise the app builds the URL from `DB_*` via
+SQLAlchemy `URL.create()` (safe for passwords containing `@`, `:`, `/`, etc.). If neither is set,
+SQLite is used for local development.
+
 Optional integrations: `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `GITHUB_TOKEN`, `N8N_*`, `SMTP_*`.
 
 Docker Compose additionally reads `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` and
-`MYSQL_ROOT_PASSWORD`.
+`MYSQL_ROOT_PASSWORD` (mapped to backend `DB_*` components).
 
 **Never commit `.env`.** Rotate the seeded admin password immediately after first login.
 Set `SEED_ON_START=false` after the first successful deployment.
 
-## 3. Docker Compose (self-hosted)
+## 3. Docker Compose (self-hosted, Windows PowerShell)
 
-```bash
-cp .env.example .env
-# edit .env: secrets, MySQL passwords, CORS_ORIGINS, FRONTEND_URL
-docker compose up --build -d
+```powershell
+Copy-Item .env.example .env
+# edit .env: secrets, MYSQL_* passwords (special chars supported), CORS_ORIGINS, FRONTEND_URL
+docker compose up -d --build
 docker compose ps
+docker compose logs -f backend
 ```
 
-The backend entrypoint waits for the MySQL health check, applies `flask db upgrade`, and
-seeds verified portfolio data when `SEED_ON_START=true`. Manual equivalents:
+The backend container waits for MySQL readiness (retrying `SELECT 1`), applies `flask db upgrade`,
+and seeds verified portfolio data when `SEED_ON_START=true` (idempotent). Startup fails fast with
+clear logs if DB/migrations/seed fail. Manual equivalents:
 
 ```bash
 docker compose exec backend flask --app wsgi.py db upgrade
@@ -194,8 +206,9 @@ Add deployment secrets in the hosting provider, never in the workflow file.
 |---------|-------|-----|
 | 401 on admin calls | expired access token | refresh via `/api/v1/auth/refresh` |
 | 429 on login | rate limit | wait or adjust `RATE_LIMIT_LOGIN` |
-| Backend restarts at boot | database unavailable | check `docker compose logs db` and health check |
-| 502 from Nginx | backend not healthy | check `docker compose logs backend` |
+| Backend restarts at boot | database unavailable or migration failed | check `docker compose logs db` and `docker compose logs backend` (DB wait/migration errors) |
+| `Can't connect to MySQL server on '...@db'` / bad hostname | password with special chars interpolated into URL | use `DB_*` components / Compose `MYSQL_*` (app builds URL via `SQLAlchemy URL.create()`); avoid raw unescaped `DATABASE_URL` with `@:/` in password |
+| 502 from Nginx | backend not healthy | check `docker compose logs backend` and `/api/v1/health` |
 | Uploads lost after deploy | ephemeral disk | mount persistent disk; keep `nexus_data` |
 | AI answers generic | no LLM key | set `GROQ_API_KEY` or `OPENROUTER_API_KEY` |
 | AI retrieval is keyword-based | no embedding model | install `requirements-ai.txt` and rebuild index |

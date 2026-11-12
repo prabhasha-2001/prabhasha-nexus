@@ -110,13 +110,13 @@ prabhasha-nexus/
 
 ### 1. Clone and configure
 
-```bash
+```powershell
 git clone https://github.com/prabhasha-2001/prabhasha-nexus.git
 cd prabhasha-nexus
-cp .env.example .env
+Copy-Item .env.example .env
 ```
 
-Edit `.env` and set at least strong `SECRET_KEY`, `JWT_SECRET_KEY`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`. SQLite is used locally when `DATABASE_URL` is empty.
+Edit `.env` and set at least strong `SECRET_KEY`, `JWT_SECRET_KEY`, `ADMIN_EMAIL` and `ADMIN_PASSWORD`. SQLite is used locally when `DATABASE_URL` and `DB_*` are empty. For MySQL, prefer `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` (assembled safely via SQLAlchemy) when passwords contain special characters.
 
 ### 2. Backend
 
@@ -160,20 +160,21 @@ Use the initial admin credentials from `.env` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`)
 
 ## Docker
 
-```bash
-cp .env.example .env
-# edit secrets and MySQL passwords in .env
-docker compose up --build -d
+```powershell
+Copy-Item .env.example .env
+# edit secrets and MySQL passwords in .env (MYSQL_* / ADMIN_*; passwords with @, :, /, etc. are supported)
+docker compose up -d --build
+docker compose ps
 ```
 
 Services:
 - `db` — MySQL 8 with the `mysql_data` volume
-- `backend` — Gunicorn on port 5000, data volume `nexus_data`
+- `backend` — Gunicorn on port 5000, data volume `nexus_data` (waits for DB, runs migrations, optional seed)
 - `frontend` — Nginx on port 8080, proxying `/api/` and `/uploads/` to the backend
 
-The backend entrypoint applies migrations on start. `SEED_ON_START=true` seeds once; set it to `false` after the first successful deployment.
+Compose builds the MySQL URL safely from `DB_*` components in the app config (so special characters in `MYSQL_PASSWORD` are handled correctly) and starts the backend only after DB readiness/migrations succeed. `SEED_ON_START=true` seeds once idempotently; set it to `false` after the first successful deployment.
 
-URLs: public site `http://localhost:8080`, backend `http://localhost:5000`.
+URLs: public site `http://localhost:8080`, backend `http://localhost:5000`, health `http://localhost:5000/api/v1/health`.
 
 ---
 
